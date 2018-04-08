@@ -86,8 +86,9 @@ class AlignDlib:
         """
         assert facePredictor is not None
 
-        self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor(facePredictor)
+        self.detector = dlib.get_frontal_face_detector()#使用dlib自带的frontal_face_detector作为我们的特征提取器
+        self.predictor = dlib.shape_predictor(facePredictor)#shape_predictor的作用是：以图像的某块区域为输入，输出一系列的点（point location）
+        # 以表示此图像region里object的姿势pose。所以，shape_predictor主要用于表示object的姿势
 
     def getAllFaceBoundingBoxes(self, rgbImg):
         """
@@ -101,7 +102,7 @@ class AlignDlib:
         assert rgbImg is not None
 
         try:
-            return self.detector(rgbImg, 1)
+            return self.detector(rgbImg, 1)#使用dlib自带的frontal_face_detector作为我们的特征提取器
         except Exception as e:
             print("Warning: {}".format(e))
             # In rare cases, exceptions are thrown.
@@ -118,7 +119,9 @@ class AlignDlib:
         :return: The largest face bounding box in an image, or None.
         :rtype: dlib.rectangle
         """
-        assert rgbImg is not None
+        assert rgbImg is not None#使用assert断言是学习python一个非常好的习惯，python assert 断言
+        # 句语格式及用法很简单。在没完善一个程序之前，我们不知道程序在哪里会出错，与其让它在运行最崩溃，
+        # 不如在出现错误条件时就崩溃，这时候就需要assert断言的帮助
 
         faces = self.getAllFaceBoundingBoxes(rgbImg)
         if (not skipMulti and len(faces) > 0) or len(faces) == 1:
@@ -140,7 +143,8 @@ class AlignDlib:
         assert rgbImg is not None
         assert bb is not None
 
-        points = self.predictor(rgbImg, bb)
+        points = self.predictor(rgbImg, bb)#shape_predictor的作用是：以图像的某块区域为输入，输出一系列的点（point location）
+        # 以表示此图像region里object的姿势pose。所以，shape_predictor主要用于表示object的姿势
         return list(map(lambda p: (p.x, p.y), points.parts()))
 
     def align(self, imgDim, rgbImg, bb=None,
@@ -183,7 +187,10 @@ class AlignDlib:
         npLandmarkIndices = np.array(landmarkIndices)
 
         H = cv2.getAffineTransform(npLandmarks[npLandmarkIndices],
-                                   imgDim * MINMAX_TEMPLATE[npLandmarkIndices])
-        thumbnail = cv2.warpAffine(rgbImg, H, (imgDim, imgDim))
+                                   imgDim * MINMAX_TEMPLATE[npLandmarkIndices])#其中两个位置就是变换前后的对应位置关系。输 出的就是仿射矩阵M
+        thumbnail = cv2.warpAffine(rgbImg, H, (imgDim, imgDim))#仿射函数cv2.warpAffine()接受三个参数，需要变换的原始图像，移动矩阵M
+        # 以及变换的图像大小（这个大小如果不和原始图像大小相同，那么函数会自 动通过插值来调整像素间的关系）
 
+        cv2.imshow('image',thumbnail);
+        cv2.waitKey();
         return thumbnail

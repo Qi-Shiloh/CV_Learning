@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-# This Python file uses the following encoding: utf-8
+
 
 #Defining the Encoding,To define a source code encoding, a magic comment must be placed into the source files either as first or second line in the file
 #
@@ -60,7 +59,7 @@ openfaceModelDir='/home/angelo/openface/demos/../models/openface'
 #                     help="Default image dimension.", default=96)
 # parser.add_argument('--verbose', action='store_true')
 
-args = argparse.Namespace(dlibFacePredictor='/home/angelo/openface/demos/../models/dlib/shape_predictor_68_face_landmarks.dat', imgDim=96, imgs=['adams.jpg', 'carell.jpg'], networkModel='/home/angelo/openface/demos/../models/openface/nn4.small2.v1.t7', verbose=False)
+args = argparse.Namespace(dlibFacePredictor='/home/angelo/openface/demos/../models/dlib/shape_predictor_68_face_landmarks.dat', imgDim=96, imgs=['1.jpg', '2.jpg'], networkModel='/home/angelo/openface/demos/../models/openface/nn4.small2.v1.t7', verbose=False)
 
 # print(args)
 # print(args.imgs)
@@ -88,8 +87,8 @@ def getRep(imgPath):
     bgrImg = cv2.imread(imgPath)# read an image
     if bgrImg is None:
         raise Exception("Unable to load image: {}".format(imgPath))
-    rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)# create a grayscale version
-
+    # rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)# create a grayscale version
+    rgbImg=bgrImg;
     if args.verbose:
         print("  + Original size: {}".format(rgbImg.shape))
 
@@ -103,6 +102,8 @@ def getRep(imgPath):
     start = time.time()
     alignedFace = align.align(args.imgDim, rgbImg, bb,
                               landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)#变换并对齐图像中的人脸。
+    cv2.imshow('face',alignedFace);
+    cv2.waitKey()
     if alignedFace is None:
         raise Exception("Unable to align image: {}".format(imgPath))
     if args.verbose:
